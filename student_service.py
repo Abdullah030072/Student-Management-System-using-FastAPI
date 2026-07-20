@@ -260,6 +260,7 @@ def generate_fake_students():
 
             count += 1
 
+<<<<<<< HEAD
     print("\n50 Fake Students Added Successfully.\n")
 # ==========================================
 # Get Single Student (FastAPI)
@@ -284,3 +285,6 @@ def get_student_by_id(student_id: int):
                 }
 
     return None
+=======
+    print("\n50 Fake Students Added Successfully.\n")
+>>>>>>> origin/fastapi
