@@ -261,3 +261,26 @@ def generate_fake_students():
             count += 1
 
     print("\n50 Fake Students Added Successfully.\n")
+# ==========================================
+# Get Single Student (FastAPI)
+# ==========================================
+
+def get_student_by_id(student_id: int):
+
+    with open(FILE_NAME, "r") as file:
+
+        reader = csv.DictReader(file)
+
+        for row in reader:
+
+            if int(row["id"]) == student_id:
+
+                return {
+                    "id": int(row["id"]),
+                    "name": row["name"],
+                    "age": int(row["age"]),
+                    "course": row["course"],
+                    "gpa": float(row["gpa"])
+                }
+
+    return None
