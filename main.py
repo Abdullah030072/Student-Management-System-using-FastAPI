@@ -1,10 +1,18 @@
 import csv
+import uvicorn
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from config import FILE_NAME
 from models import Student
+
+from student_service import (
+    generate_fake_students,
+    get_student_by_id
+)
+
 from menu import main_menu
+
 
 
 # ==========================================
@@ -16,6 +24,7 @@ app = FastAPI(
     description="API for Managing Student Records",
     version="1.0.0"
 )
+
 
 
 # ==========================================
@@ -30,8 +39,9 @@ def home():
     }
 
 
+
 # ==========================================
-# View All Students
+# Get All Students
 # ==========================================
 
 @app.get("/students")
@@ -50,26 +60,26 @@ def get_students():
     return students
 
 
+
 # ==========================================
-# Search Student By ID
+# Get Student By ID
 # ==========================================
 
 @app.get("/students/{student_id}")
 def get_student(student_id: int):
 
-    with open(FILE_NAME, "r") as file:
+    student = get_student_by_id(student_id)
 
-        reader = csv.DictReader(file)
+    if student:
 
-        for row in reader:
+        return student
 
-            if int(row["ID"]) == student_id:
 
-                return row
+    raise HTTPException(
+        status_code=404,
+        detail="Student Not Found"
+    )
 
-    return {
-        "message": "Student Not Found"
-    }
 
 
 # ==========================================
@@ -81,31 +91,37 @@ def add_student_api(student: Student):
 
     with open(FILE_NAME, "r") as file:
 
-        reader = csv.reader(file)
+        reader = csv.DictReader(file)
 
         for row in reader:
 
-            if len(row) > 0 and int(row[0]) == student.id:
+            if int(row["id"]) == student.id:
 
-                return {
-                    "message": "Student ID Already Exists"
-                }
+                raise HTTPException(
+                    status_code=400,
+                    detail="Student ID Already Exists"
+                )
+
 
     with open(FILE_NAME, "a", newline="") as file:
 
         writer = csv.writer(file)
 
-        writer.writerow([
-            student.id,
-            student.name,
-            student.age,
-            student.course,
-            student.gpa
-        ])
+        writer.writerow(
+            [
+                student.id,
+                student.name,
+                student.age,
+                student.course,
+                student.gpa
+            ]
+        )
+
 
     return {
         "message": "Student Added Successfully"
     }
+
 
 
 # ==========================================
@@ -115,13 +131,12 @@ def add_student_api(student: Student):
 @app.post("/students/fake")
 def fake_students():
 
-    from student_service import generate_fake_students
-
     generate_fake_students()
 
     return {
         "message": "50 Fake Students Added Successfully"
     }
+
 
 
 # ==========================================
@@ -135,6 +150,7 @@ def update_student_api(student_id: int, student: Student):
 
     found = False
 
+
     with open(FILE_NAME, "r") as file:
 
         reader = csv.reader(file)
@@ -142,6 +158,7 @@ def update_student_api(student_id: int, student: Student):
         header = next(reader)
 
         rows.append(header)
+
 
         for row in reader:
 
@@ -157,23 +174,29 @@ def update_student_api(student_id: int, student: Student):
                     student.gpa
                 ]
 
+
             rows.append(row)
 
-    if found:
 
-        with open(FILE_NAME, "w", newline="") as file:
+    if not found:
 
-            writer = csv.writer(file)
+        raise HTTPException(
+            status_code=404,
+            detail="Student Not Found"
+        )
 
-            writer.writerows(rows)
 
-        return {
-            "message": "Student Updated Successfully"
-        }
+    with open(FILE_NAME, "w", newline="") as file:
+
+        writer = csv.writer(file)
+
+        writer.writerows(rows)
+
 
     return {
-        "message": "Student Not Found"
+        "message": "Student Updated Successfully"
     }
+
 
 
 # ==========================================
@@ -187,6 +210,7 @@ def delete_student_api(student_id: int):
 
     found = False
 
+
     with open(FILE_NAME, "r") as file:
 
         reader = csv.reader(file)
@@ -194,6 +218,7 @@ def delete_student_api(student_id: int):
         header = next(reader)
 
         rows.append(header)
+
 
         for row in reader:
 
@@ -203,29 +228,43 @@ def delete_student_api(student_id: int):
 
                 continue
 
+
             rows.append(row)
 
-    if found:
 
-        with open(FILE_NAME, "w", newline="") as file:
 
-            writer = csv.writer(file)
+    if not found:
 
-            writer.writerows(rows)
+        raise HTTPException(
+            status_code=404,
+            detail="Student Not Found"
+        )
 
-        return {
-            "message": "Student Deleted Successfully"
-        }
+
+    with open(FILE_NAME, "w", newline="") as file:
+
+        writer = csv.writer(file)
+
+        writer.writerows(rows)
+
 
     return {
-        "message": "Student Not Found"
+        "message": "Student Deleted Successfully"
     }
 
 
+
+
 # ==========================================
-# Run Terminal Program
+# Run Terminal Menu OR FastAPI
 # ==========================================
 
 if __name__ == "__main__":
+
+    print("\n====================================")
+    print(" Student Management System ")
+    print("====================================\n")
+
+    print("Starting Terminal Menu...\n")
 
     main_menu()
