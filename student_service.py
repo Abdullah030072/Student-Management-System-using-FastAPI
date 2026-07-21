@@ -2,6 +2,7 @@ import csv
 import random
 
 from config import FILE_NAME, fake, COURSES
+
 from validation import (
     valid_id,
     valid_name,
@@ -31,10 +32,12 @@ def add_student():
 
                 return
 
+
     name = valid_name()
     age = valid_age()
     course = valid_course()
     gpa = valid_gpa()
+
 
     with open(FILE_NAME, "a", newline="") as file:
 
@@ -48,7 +51,9 @@ def add_student():
             gpa
         ])
 
+
     print("\nStudent Added Successfully.\n")
+
 
 
 # ==========================================
@@ -67,19 +72,26 @@ def view_students():
         print("ID\tName\tAge\tCourse\tGPA")
         print("-------------------------------------------------------------")
 
+
         found = False
+
 
         for row in reader:
 
             found = True
 
-            print(f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}\t{row[4]}")
+            print(
+                f"{row[0]}\t{row[1]}\t{row[2]}\t{row[3]}\t{row[4]}"
+            )
+
 
         if not found:
 
             print("No Student Record Found.")
 
+
         print("-------------------------------------------------------------")
+
 
 
 # ==========================================
@@ -90,17 +102,20 @@ def search_student():
 
     student_id = valid_id()
 
+
     with open(FILE_NAME, "r") as file:
 
         reader = csv.reader(file)
 
         next(reader)
 
+
         for row in reader:
 
             if row[0] == str(student_id):
 
                 print("\n========== Student Found ==========")
+
                 print("ID     :", row[0])
                 print("Name   :", row[1])
                 print("Age    :", row[2])
@@ -109,7 +124,9 @@ def search_student():
 
                 return
 
+
     print("\nStudent Not Found.\n")
+
 
 
 # ==========================================
@@ -124,6 +141,7 @@ def update_student():
 
     found = False
 
+
     with open(FILE_NAME, "r") as file:
 
         reader = csv.reader(file)
@@ -132,35 +150,57 @@ def update_student():
 
         rows.append(header)
 
+
         for row in reader:
+
 
             if row[0] == str(student_id):
 
                 found = True
 
+
                 print("\nPress Enter to Keep Old Value.\n")
 
-                new_name = input(f"New Name ({row[1]}): ").strip()
 
-                if new_name != "":
+                new_name = input(
+                    f"New Name ({row[1]}): "
+                ).strip()
+
+                if new_name:
                     row[1] = new_name
 
-                new_age = input(f"New Age ({row[2]}): ").strip()
 
-                if new_age != "":
+
+                new_age = input(
+                    f"New Age ({row[2]}): "
+                ).strip()
+
+                if new_age:
                     row[2] = new_age
 
-                new_course = input(f"New Course ({row[3]}): ").strip()
 
-                if new_course != "":
+
+                new_course = input(
+                    f"New Course ({row[3]}): "
+                ).strip()
+
+                if new_course:
                     row[3] = new_course
 
-                new_gpa = input(f"New GPA ({row[4]}): ").strip()
 
-                if new_gpa != "":
+
+                new_gpa = input(
+                    f"New GPA ({row[4]}): "
+                ).strip()
+
+                if new_gpa:
                     row[4] = new_gpa
 
+
+
             rows.append(row)
+
+
 
     if found:
 
@@ -170,11 +210,14 @@ def update_student():
 
             writer.writerows(rows)
 
+
         print("\nStudent Updated Successfully.\n")
+
 
     else:
 
         print("\nStudent Not Found.\n")
+
 
 
 # ==========================================
@@ -189,6 +232,7 @@ def delete_student():
 
     found = False
 
+
     with open(FILE_NAME, "r") as file:
 
         reader = csv.reader(file)
@@ -197,7 +241,9 @@ def delete_student():
 
         rows.append(header)
 
+
         for row in reader:
+
 
             if row[0] == str(student_id):
 
@@ -205,9 +251,13 @@ def delete_student():
 
                 continue
 
+
             rows.append(row)
 
+
+
     if found:
+
 
         with open(FILE_NAME, "w", newline="") as file:
 
@@ -215,11 +265,14 @@ def delete_student():
 
             writer.writerows(rows)
 
+
         print("\nStudent Deleted Successfully.\n")
+
 
     else:
 
         print("\nStudent Not Found.\n")
+
 
 
 # ==========================================
@@ -228,63 +281,93 @@ def delete_student():
 
 def generate_fake_students():
 
+
     with open(FILE_NAME, "r") as file:
 
         reader = csv.reader(file)
 
-        existing_ids = {row[0] for row in reader if row}
+        existing_ids = {
+            row[0]
+            for row in reader
+            if row
+        }
+
+
 
     with open(FILE_NAME, "a", newline="") as file:
 
         writer = csv.writer(file)
 
+
         count = 0
+
 
         while count < 50:
 
-            student_id = random.randint(1000, 9999)
+
+            student_id = random.randint(1000,9999)
+
 
             if str(student_id) in existing_ids:
 
                 continue
 
+
             existing_ids.add(str(student_id))
 
+
             writer.writerow([
+
                 student_id,
                 fake.name(),
-                random.randint(18, 30),
+                random.randint(18,30),
                 random.choice(COURSES),
-                round(random.uniform(2.0, 4.0), 2)
+                round(random.uniform(2.0,4.0),2)
+
             ])
+
 
             count += 1
 
-<<<<<<< HEAD
+
+
     print("\n50 Fake Students Added Successfully.\n")
+
+
+
 # ==========================================
 # Get Single Student (FastAPI)
 # ==========================================
 
 def get_student_by_id(student_id: int):
 
+
     with open(FILE_NAME, "r") as file:
+
 
         reader = csv.DictReader(file)
 
+
         for row in reader:
+
 
             if int(row["id"]) == student_id:
 
+
                 return {
+
                     "id": int(row["id"]),
+
                     "name": row["name"],
+
                     "age": int(row["age"]),
+
                     "course": row["course"],
+
                     "gpa": float(row["gpa"])
+
                 }
 
+
+
     return None
-=======
-    print("\n50 Fake Students Added Successfully.\n")
->>>>>>> origin/fastapi
