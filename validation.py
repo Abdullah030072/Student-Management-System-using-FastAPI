@@ -1,3 +1,6 @@
+from config import COURSES
+
+
 # ==========================================
 # Validate Student ID
 # ==========================================
@@ -13,6 +16,9 @@ def valid_id():
 
         elif not student_id.isdigit():
             print("Student ID must contain only numbers.")
+
+        elif int(student_id) <= 0:
+            print("Student ID must be greater than 0.")
 
         else:
             return int(student_id)
@@ -31,8 +37,11 @@ def valid_name():
         if name == "":
             print("Name cannot be empty.")
 
-        elif not name.replace(" ", "").isalpha():
-            print("Name should contain only alphabets.")
+        elif len(name) < 3:
+            print("Name must contain at least 3 characters.")
+
+        elif not all(char.isalpha() or char.isspace() for char in name):
+            print("Name should contain only alphabets and spaces.")
 
         else:
             return name
@@ -54,8 +63,6 @@ def valid_age():
         elif not age.isdigit():
             print("Age must be numeric.")
 
-        elif int(age) < 1 or int(age) > 100:
-            print("Age must be between 1 and 100.")
 
         else:
             return int(age)
@@ -69,10 +76,18 @@ def valid_course():
 
     while True:
 
-        course = input("Enter Course: ").strip()
+        print("\nAvailable Courses:")
+
+        for course in COURSES:
+            print("-", course)
+
+        course = input("\nEnter Course: ").strip()
 
         if course == "":
             print("Course cannot be empty.")
+
+        elif course not in COURSES:
+            print("Invalid Course! Please choose from the list above.")
 
         else:
             return course
@@ -103,7 +118,7 @@ def valid_gpa():
                 print("GPA cannot be greater than 4.")
 
             else:
-                return gpa
+                return round(gpa, 2)
 
         except ValueError:
             print("Enter a valid GPA.")
